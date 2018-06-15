@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		">
+
+	<!-- 第一步：注入自定义的定时器到 JobDetailFactoryBean 中 ：id=myJob是对自定义任务的 取名（可自行改名）； 
+		name="jobClass"是quartz工具bean类中定义的名字，不可更改 -->
+	<bean id="myJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.itcast.main.quartz.MyTestQuartz" />
+	</bean>
+	<!-- 第二步：配置自定义定时器的执行周期 -->
+	<bean id="myJobTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="myJob" />
+		<!-- 设置定时器的执行周期 -->
+		<property name="cronExpression" value="0 */1 * * * ?"></property>
+	</bean>
+	<!-- 第三步：启动定时器 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobFactory" ref="jobFactory" />
+		<property name="triggers">
+			<list>
+				<!-- 加载定时器要执行的任务 -->
+				<ref bean="myJobTrigger" />
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>编辑宣传任务</title>
+		<!-- 导入jquery核心类库 -->
+		<script type="text/javascript" src="../../js/jquery-1.8.3.js"></script>
+		<!-- 导入easyui类库 -->
+		<link rel="stylesheet" type="text/css" href="../../js/easyui/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../js/easyui/themes/icon.css">
+		<link rel="stylesheet" type="text/css" href="../../css/default.css">
+		<script type="text/javascript" src="../../js/easyui/jquery.easyui.min.js"></script>
+		<script src="../../js/easyui/locale/easyui-lang-zh_CN.js" type="text/javascript"></script>
+		<!--导入在线HTML编辑器 -->
+		<script type="text/javascript" src="../../editor/kindeditor.js"></script>
+		<script type="text/javascript" src="../../editor/lang/zh_CN.js"></script>
+		<link rel="stylesheet" href="../../editor/themes/default/default.css" />
+
+		<script type="text/javascript">
+			$(function() {
+				$("body").css({ visibility: "visible" });
+				$("#back").click(function() {
+					location.href = "promotion.html";
+				});
+
+				KindEditor.ready(function(K) {
+					window.editor = K.create('#description', {
+						items: [
+							'source', '|', 'undo', 'redo', '|', 'preview', 'print', 'template', 'code', 'cut', 'copy', 'paste',
+							'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',
+							'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+							'superscript', 'clearhtml', 'quickformat', 'selectall', '|', 'fullscreen', '/',
+							'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+							'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image', 'multiimage',
+							'flash', 'media', 'insertfile', 'table', 'hr', 'emoticons', 'baidumap', 'pagebreak',
+							'anchor', 'link', 'unlink', '|', 'about'
+						],
+						allowFileManager: true,
+						uploadJson: '../../image_upload.action',
+						fileManagerJson: '../../image_manage.action'
+					});
+				});
+
+				var promotion = JSON.parse(localStorage.getItem("promotion"));
+				if(promotion != null) {
+//					alert("promotion.startDate="+promotion.startDate
+//					+" promotion.endDate="+promotion.endDate
+//					+" promotion.title="+promotion.title
+//					+" promotion.titleImg="+promotion.titleImg
+//					+" promotion.description="+promotion.description);
+					
+					//回显数据
+//					$.post("../../promotion_findById.action", { "id": promotion.id }, function(data) {
+//						var startDate = data.startDate;
+//						startDate = startDate.substring(0, 10);
+//						var endDate = data.endDate;
+//						endDate = endDate.substring(0, 10);
+//						$("#title").val(data.title);
+//						$("#activeScope").val(data.activeScope);
+//						$('#startDate').datebox('setValue', startDate);
+//						$('#endDate').datebox('setValue', endDate);
+//						//$("#titleImg").combobox('setValue',promotion.titleImg);
+////						$("#description").html("<img src='/bos_management/upload/f1627570-2d8b-4064-9985-f5446e1ae3fc.png' alt='' />");
+//					});
+					
+					var startDate = promotion.startDate;
+					startDate = startDate.substring(0, 10);
+					var endDate = promotion.endDate;
+					endDate = endDate.substring(0, 10);
+					$("#title").val(promotion.title);
+					$("#activeScope").val(promotion.activeScope);
+					$('#startDate').datebox('setValue', startDate);
+					$('#endDate').datebox('setValue', endDate);
+					$("#description").html(promotion.description);
+					
+					var img = new Image();
+					img.width = 100;
+					img.height =100;
+					img.src= promotion.titleImg;
+					document.getElementById('showImgDiv').appendChild(img);
+				}
+				
+				// 为保存按钮，添加click事件
+				$("#save").click(function() {
+					if($("#promotionForm").form('validate')) {
+						// 同步kindEditor数据到textarea 
+						window.editor.sync();
+						$("#promotionId").val(promotion.id);
+						// 提交表单
+						$("#promotionForm").submit();
+					} else {
+						// 校验失败
+						$.messager.alert("警告信息", "表单中存在数据非法项！", "warning");
+					}
+				});
+			});
+			
+			function changeFile() {
+				var showImgDiv=document.getElementById("showImgDiv");
+				var imgNode = document.getElementsByTagName("img")[0];
+				if(imgNode!=null && imgNode != undefined) {
+					showImgDiv.removeChild(imgNode);
+				}
+				
+//				var img = new Image();
+//				img.width = 100;
+//				img.height =100;
+//				img.src= imgSrc;
+//				showImgDiv.appendChild(img);
+			}
+		</script>
+	</head>
+
+	<body class="easyui-layout" style="visibility:hidden;">
+		<div region="north" style="height:31px;overflow:hidden;" split="false" border="false">
+			<div class="datagrid-toolbar">
+				<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+				<a id="back" icon="icon-back" href="#" class="easyui-linkbutton" plain="true">返回列表</a>
+			</div>
+		</div>
+		<div region="center" style="overflow:auto;padding:5px;" border="false">
+			<form id="promotionForm" enctype="multipart/form-data" action="../../promotion_edit.action" method="post">
+				<table class="table-edit" width="95%" align="center">
+					<tr class="title">
+						<td colspan="4">宣传任务</td>
+						<input type="hidden" name="id" id="promotionId"/>
+					</tr>
+					<tr>
+						<td>宣传概要(标题):</td>
+						<td colspan="3">
+							<input type="text" name="title" id="title" class="easyui-validatebox" required="true" />
+						</td>
+					</tr>
+					<tr>
+						<td>活动范围:</td>
+						<td>
+							<input type="text" name="activeScope" id="activeScope" class="easyui-validatebox" />
+						</td>
+						<td>宣传图片:</td>
+						<td>
+							<input type="file" name="titleImgFile" id="titleImg" onchange="changeFile()"/>
+							<div id="showImgDiv" style="width:100%;height:100%;overflow:hidden;">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>发布时间: </td>
+						<td>
+							<input type="text" name="startDate" id="startDate" class="easyui-datebox" required="true" />
+						</td>
+						<td>失效时间: </td>
+						<td>
+							<input type="text" name="endDate" id="endDate" class="easyui-datebox" required="true" />
+						</td>
+					</tr>
+					<tr>
+						<td>宣传内容(活动描述信息):</td>
+						<td colspan="3">
+							<textarea id="description" name="description" style="width:80%" rows="20"></textarea>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+
+</html>
